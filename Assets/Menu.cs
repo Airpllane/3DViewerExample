@@ -8,7 +8,11 @@ public class Menu : MonoBehaviour
 {
     public GameObject contentObject;
     public GameObject listButton;
-    public GameObject scaleInput;
+    public TMP_InputField scaleInput;
+    public TMP_Dropdown meshDropdown;
+    public TMP_Dropdown materialDropdown;
+    public TMP_Dropdown colorDropdown;
+    public Slider alphaSlider;
 
     public TextMeshProUGUI objectNameLabel;
     public GameObject itemContainer;
@@ -20,15 +24,38 @@ public class Menu : MonoBehaviour
     private ObjectsPresenter objectsPresenter;
     private float buttonYOffset = 0f;
 
+    private Dictionary<ObjectsPresenter.MeshEnum, string> meshNameDictionary = new Dictionary<ObjectsPresenter.MeshEnum, string>()
+    {
+        { ObjectsPresenter.MeshEnum.Cube, "Cube" },
+        { ObjectsPresenter.MeshEnum.Sphere, "Sphere" },
+        { ObjectsPresenter.MeshEnum.Capsule, "Capsule" },
+    };
+
+
     
     void Start()
     {
         this.objectsPresenter = new ObjectsPresenter(this);
         
-        scaleInput.GetComponent<TMP_InputField>().onValueChanged.AddListener((string inputString) => 
+        scaleInput.onEndEdit.AddListener((string inputString) => 
         {
-            if (inputString == "") return;
-            objectsPresenter.UpdateScale(float.Parse(inputString)); 
+            float newScale;
+            if (float.TryParse(inputString, out newScale))
+            {
+                if (newScale < 0.01) newScale = 0.01f;
+                if (newScale > 1.5) newScale = 1.5f;
+                objectsPresenter.UpdateScale(newScale);
+            }
+        });
+
+        meshDropdown.onValueChanged.AddListener((int newMeshNumber) =>
+        {
+            objectsPresenter.UpdateMesh((ObjectsPresenter.MeshEnum)newMeshNumber);
+        });
+
+        alphaSlider.onValueChanged.AddListener((float newAlpha) => 
+        {
+            objectsPresenter.UpdateAlpha(newAlpha);
         });
     }
 
@@ -45,9 +72,19 @@ public class Menu : MonoBehaviour
         buttonYOffset += 30f;
     }
 
+    public void SetMeshOptions(List<ObjectsPresenter.MeshEnum> optionValues)
+    {
+        optionValues.ForEach((ObjectsPresenter.MeshEnum value) =>
+        {
+            meshDropdown.AddOptions(new List<string> { meshNameDictionary[value] });
+        });
+        
+    }
+
     public void SetObjectName(string objectName)
     {
-        scaleInput.GetComponent<TMP_InputField>().interactable = true;
+        scaleInput.interactable = true;
+        meshDropdown.interactable = true;
         objectNameLabel.text = objectName;
     }
 
@@ -64,6 +101,11 @@ public class Menu : MonoBehaviour
         meshFilter.sharedMesh = mesh;
     }
 
+    public void SetSelectedMesh(ObjectsPresenter.MeshEnum meshNumber)
+    {
+        meshDropdown.SetValueWithoutNotify((int)meshNumber);
+    }
+
     public void SetObjectMaterial(Material material)
     {
         MeshRenderer meshRenderer = object3D.GetComponent<MeshRenderer>();
@@ -76,4 +118,17 @@ public class Menu : MonoBehaviour
         scaleInput.GetComponent<TMP_InputField>().text = scale.ToString();
     }
     
+    public void SetObjectColor(Color color)
+    {
+        object3D.GetComponent<MeshRenderer>().material.color = color;
+        // colorDropdown.GetComponent<TMP_Dropdown>();
+    }
+
+    public void SetObjectAlpha(float alpha)
+    {
+        MeshRenderer meshRenderer = object3D.GetComponent<MeshRenderer>();
+        Color newColor = meshRenderer.material.color;
+        newColor.a = alpha;
+        meshRenderer.material.color = newColor;
+    }
 }
