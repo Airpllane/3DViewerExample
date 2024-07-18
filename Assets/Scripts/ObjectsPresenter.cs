@@ -59,6 +59,7 @@ public class ObjectsPresenter
         viewMenu.SetObjectMaterial(viewableObject.material);
         viewMenu.SetObjectScale(viewableObject.scale);
         viewMenu.SetObjectColor(viewableObject.baseColor);
+        viewMenu.SetObjectAlpha(viewableObject.alpha);
     }
 
     public void UpdateMaterial(MaterialReference.MaterialType materialNumber)
@@ -76,6 +77,7 @@ public class ObjectsPresenter
         ViewableObject viewableObject = objectsLibrary.objectList[objectNumber];
         viewableObject.baseColor = colorNumber;
         viewMenu.SetObjectColor(viewableObject.baseColor);
+        viewMenu.SetObjectAlpha(viewableObject.alpha);
     }
 
     public void UpdateAlpha(float alpha)
