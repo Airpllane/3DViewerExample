@@ -7,7 +7,6 @@ using UnityEngine.UI;
 public class Menu : MonoBehaviour
 {
     public GameObject contentObject;
-    public GameObject listButton;
     public TMP_InputField scaleInput;
     public TMP_Dropdown meshDropdown;
     public TMP_Dropdown materialDropdown;
@@ -19,26 +18,9 @@ public class Menu : MonoBehaviour
     [HideInInspector]
     public GameObject displayedObject;
 
-    public delegate void ButtonDelegate(int objectNumber);
-
-    private float buttonYOffset = 0f;
-
     void Start()
     {
-
-    }
-
-    public void AddButton(string text, int objectNumber, ButtonDelegate buttonDelegate)
-    {
-        GameObject button = Instantiate(listButton);
-        button.transform.SetParent(contentObject.transform, false);
-        button.GetComponentInChildren<TextMeshProUGUI>().text = text;
-        button.GetComponent<Button>().onClick.AddListener(() => { buttonDelegate(objectNumber); });
-
-        Vector3 buttonPosition = button.transform.localPosition;
-        buttonPosition.y -= buttonYOffset;
-        button.transform.localPosition = buttonPosition;
-        buttonYOffset += button.GetComponent<RectTransform>().rect.height;
+        LoadDropdowns();
     }
 
     public void SetObject(GameObject renderedObject)
@@ -119,5 +101,11 @@ public class Menu : MonoBehaviour
     public void LockAlpha()
     {
         alphaSlider.interactable = false;
+    }
+    public void LoadDropdowns()
+    {
+        SetMeshOptions(new List<MeshReference.MeshType>(MeshReference.meshTypeToMesh.Keys));
+        SetMaterialOptions(new List<MaterialReference.MaterialType>(MaterialReference.materialTypeToMaterial.Keys));
+        SetColorOptions(new List<ColorReference.ColorType>(ColorReference.colorTypeToColor.Keys));
     }
 }
