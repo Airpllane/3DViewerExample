@@ -16,48 +16,16 @@ public class Menu : MonoBehaviour
 
     public TextMeshProUGUI objectNameLabel;
     public GameObject itemContainer;
-
-    private GameObject object3D;
+    [HideInInspector]
+    public GameObject displayedObject;
 
     public delegate void ButtonDelegate(int objectNumber);
 
-    private ObjectsPresenter objectsPresenter;
     private float buttonYOffset = 0f;
 
     void Start()
     {
-        this.objectsPresenter = new ObjectsPresenter(this);
-        
-        scaleInput.onEndEdit.AddListener((string inputString) => 
-        {
-            float newScale;
-            if (float.TryParse(inputString, out newScale))
-            {
-                if (newScale < 0.01) newScale = 0.01f;
-                if (newScale > 1.5) newScale = 1.5f;
-                objectsPresenter.UpdateScale(newScale);
-            }
-        });
 
-        meshDropdown.onValueChanged.AddListener((int newMeshNumber) =>
-        {
-            objectsPresenter.UpdateMesh((MeshReference.MeshType)newMeshNumber);
-        });
-
-        materialDropdown.onValueChanged.AddListener((int newMaterialNumber) =>
-        {
-            objectsPresenter.UpdateMaterial((MaterialReference.MaterialType)newMaterialNumber);
-        });
-
-        colorDropdown.onValueChanged.AddListener((int newColorNumber) =>
-        {
-            objectsPresenter.UpdateColor((ColorReference.ColorType)newColorNumber);
-        });
-
-        alphaSlider.onValueChanged.AddListener((float newAlpha) => 
-        {
-            objectsPresenter.UpdateAlpha(newAlpha);
-        });
     }
 
     public void AddButton(string text, int objectNumber, ButtonDelegate buttonDelegate)
@@ -71,6 +39,43 @@ public class Menu : MonoBehaviour
         buttonPosition.y -= buttonYOffset;
         button.transform.localPosition = buttonPosition;
         buttonYOffset += button.GetComponent<RectTransform>().rect.height;
+    }
+
+    public void SetObject(GameObject renderedObject)
+    {
+        if (displayedObject) Destroy(displayedObject);
+        displayedObject = renderedObject;
+        displayedObject.transform.SetParent(itemContainer.transform);
+        displayedObject.transform.localRotation = Quaternion.identity;
+    }
+    public void SetObjectName(string objectName)
+    {
+        objectNameLabel.text = objectName;
+    }
+
+    public void SetScaleInput(float scale)
+    {
+        scaleInput.GetComponent<TMP_InputField>().text = scale.ToString();
+    }
+
+    public void SetMeshDropdown(MeshReference.MeshType meshType)
+    {
+        meshDropdown.SetValueWithoutNotify((int)meshType);
+    }
+
+    public void SetMaterialDropdown(MaterialReference.MaterialType materialType)
+    {
+        materialDropdown.SetValueWithoutNotify((int)materialType);
+    }
+
+    public void SetColorDropdown(ColorReference.ColorType colorType)
+    {
+        colorDropdown.SetValueWithoutNotify((int)colorType);
+    }
+
+    public void SetAlphaSlider(float alpha)
+    {
+        alphaSlider.value = alpha;
     }
 
     public void SetMeshOptions(List<MeshReference.MeshType> optionValues)
@@ -97,62 +102,22 @@ public class Menu : MonoBehaviour
         });
     }
 
-    public void SetObjectName(string objectName)
+    public void UnlockFields()
     {
         scaleInput.interactable = true;
-        meshDropdown.interactable = true;
         materialDropdown.interactable = true;
-        objectNameLabel.text = objectName;
+        meshDropdown.interactable = true;
+        colorDropdown.interactable = true;
+        alphaSlider.interactable = true;
     }
 
-    public void SetObjectMesh(MeshReference.MeshType meshNumber)
-    {
-        Destroy(object3D);
-        object3D = new GameObject();
-        object3D.transform.SetParent(itemContainer.transform);
-        MeshFilter meshFilter = object3D.AddComponent<MeshFilter>();
-        object3D.AddComponent<MeshRenderer>();
-        meshFilter.sharedMesh = MeshReference.meshTypeToMesh[meshNumber];
-        meshDropdown.SetValueWithoutNotify((int)meshNumber);
-    }
-
-    public void SetObjectMaterial(MaterialReference.MaterialType materialNumber)
+    public void LockColor()
     {
         colorDropdown.interactable = false;
+    }
+
+    public void LockAlpha()
+    {
         alphaSlider.interactable = false;
-
-        MeshRenderer meshRenderer = object3D.GetComponent<MeshRenderer>();
-        meshRenderer.material = MaterialReference.materialTypeToMaterial[materialNumber];
-        materialDropdown.SetValueWithoutNotify((int)materialNumber);
-
-        if (MaterialReference.colorableMaterials.Contains(materialNumber))
-        {
-            colorDropdown.interactable = true;
-        }
-        if (MaterialReference.alphaMaterials.Contains(materialNumber))
-        {
-            alphaSlider.interactable = true;
-        }
-    }
-
-    public void SetObjectScale(float scale)
-    {
-        object3D.transform.localScale = new Vector3(scale, scale, scale);
-        scaleInput.GetComponent<TMP_InputField>().text = scale.ToString();
-    }
-    
-    public void SetObjectColor(ColorReference.ColorType colorNumber)
-    {
-        object3D.GetComponent<MeshRenderer>().material.color = ColorReference.colorTypeToColor[colorNumber];
-        colorDropdown.SetValueWithoutNotify((int)colorNumber);
-    }
-
-    public void SetObjectAlpha(float alpha)
-    {
-        MeshRenderer meshRenderer = object3D.GetComponent<MeshRenderer>();
-        Color newColor = meshRenderer.material.color;
-        newColor.a = alpha;
-        meshRenderer.material.color = newColor;
-        alphaSlider.value = alpha;
     }
 }
