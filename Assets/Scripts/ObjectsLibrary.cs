@@ -4,27 +4,29 @@ using UnityEngine;
 
 public class ObjectsLibrary
 {
-    List<ViewableObject> objectList = new List<ViewableObject>();
+    public List<ViewableObject> objectList = new List<ViewableObject>();
     public ObjectsLibrary()
     {
-        objectList.Add(new ViewableObject("Cube",
+        objectList.Add(new ViewableObject("Object 1",
             MeshReference.MeshType.Cube,
             MaterialReference.MaterialType.Standard,
-            1.2f,
+            0.3f,
             ColorReference.ColorType.Green,
             1f));
 
-        objectList.Add(new ViewableObject("Sphere",
+        objectList.Add(new ViewableObject("Object 2",
             MeshReference.MeshType.Sphere,
             MaterialReference.MaterialType.Wireframe,
-            0.5f,
+            0.6f,
             ColorReference.ColorType.Blue,
-            0.7f));
-    }
+            1f));
 
-    public List<ViewableObject> GetViewableObjects()
-    {
-        return objectList;
+        objectList.Add(new ViewableObject("Object 3",
+            MeshReference.MeshType.Capsule,
+            MaterialReference.MaterialType.Solid,
+            0.1f,
+            ColorReference.ColorType.Red,
+            0.7f));
     }
 }
 

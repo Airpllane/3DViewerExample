@@ -18,7 +18,7 @@ public class ObjectsPresenter
 
     public void LoadObjects()
     {
-        List<ViewableObject> objectsList = objectsLibrary.GetViewableObjects();
+        List<ViewableObject> objectsList = objectsLibrary.objectList;
         for (int i = 0; i < objectsList.Count; i++)
         {
             viewMenu.AddButton(objectsList[i].name, i, ShowObject);
@@ -35,7 +35,7 @@ public class ObjectsPresenter
     public void ShowObject(int objectNumber)
     {
         this.objectNumber = objectNumber;
-        ViewableObject viewableObject = objectsLibrary.GetViewableObjects()[objectNumber];
+        ViewableObject viewableObject = objectsLibrary.objectList[objectNumber];
         viewMenu.SetObjectName(viewableObject.name);
         viewMenu.SetObjectMesh(viewableObject.mesh);
         viewMenu.SetObjectMaterial(viewableObject.material);
@@ -46,14 +46,14 @@ public class ObjectsPresenter
 
     public void UpdateScale(float scale)
     {
-        ViewableObject viewableObject = objectsLibrary.GetViewableObjects()[objectNumber];
+        ViewableObject viewableObject = objectsLibrary.objectList[objectNumber];
         viewableObject.scale = scale;
         viewMenu.SetObjectScale(viewableObject.scale);
     }
 
     public void UpdateMesh(MeshReference.MeshType meshNumber)
     {
-        ViewableObject viewableObject = objectsLibrary.GetViewableObjects()[objectNumber];
+        ViewableObject viewableObject = objectsLibrary.objectList[objectNumber];
         viewableObject.mesh = meshNumber;
         viewMenu.SetObjectMesh(viewableObject.mesh);
         viewMenu.SetObjectMaterial(viewableObject.material);
@@ -63,7 +63,7 @@ public class ObjectsPresenter
 
     public void UpdateMaterial(MaterialReference.MaterialType materialNumber)
     {
-        ViewableObject viewableObject = objectsLibrary.GetViewableObjects()[objectNumber];
+        ViewableObject viewableObject = objectsLibrary.objectList[objectNumber];
         viewableObject.material = materialNumber;
         viewMenu.SetObjectMaterial(viewableObject.material);
         viewMenu.SetObjectScale(viewableObject.scale);
@@ -73,14 +73,14 @@ public class ObjectsPresenter
 
     public void UpdateColor(ColorReference.ColorType colorNumber)
     {
-        ViewableObject viewableObject = objectsLibrary.GetViewableObjects()[objectNumber];
+        ViewableObject viewableObject = objectsLibrary.objectList[objectNumber];
         viewableObject.baseColor = colorNumber;
         viewMenu.SetObjectColor(viewableObject.baseColor);
     }
 
     public void UpdateAlpha(float alpha)
     {
-        ViewableObject viewableObject = objectsLibrary.GetViewableObjects()[objectNumber];
+        ViewableObject viewableObject = objectsLibrary.objectList[objectNumber];
         viewableObject.alpha = alpha;
         viewMenu.SetObjectAlpha(viewableObject.alpha);
     }
