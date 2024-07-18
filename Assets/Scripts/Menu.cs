@@ -70,7 +70,7 @@ public class Menu : MonoBehaviour
         Vector3 buttonPosition = button.transform.localPosition;
         buttonPosition.y -= buttonYOffset;
         button.transform.localPosition = buttonPosition;
-        buttonYOffset += 30f;
+        buttonYOffset += button.GetComponent<RectTransform>().rect.height;
     }
 
     public void SetMeshOptions(List<MeshReference.MeshType> optionValues)
@@ -107,10 +107,7 @@ public class Menu : MonoBehaviour
 
     public void SetObjectMesh(MeshReference.MeshType meshNumber)
     {
-        foreach (Transform child in itemContainer.transform)
-        {
-            Destroy(child.gameObject);
-        }
+        Destroy(object3D);
         object3D = new GameObject();
         object3D.transform.SetParent(itemContainer.transform);
         MeshFilter meshFilter = object3D.AddComponent<MeshFilter>();
