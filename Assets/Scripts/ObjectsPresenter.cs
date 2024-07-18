@@ -8,15 +8,6 @@ public class ObjectsPresenter
     private ObjectsLibrary objectsLibrary;
     private int objectNumber;
 
-    public enum MeshEnum { Cube, Sphere, Capsule };
-
-    private Dictionary<MeshEnum, Mesh> meshesDictionary = new Dictionary<MeshEnum, Mesh> // move objects to enums
-    {
-        { MeshEnum.Cube, Resources.GetBuiltinResource<Mesh>("Cube.fbx") },
-        { MeshEnum.Sphere, Resources.GetBuiltinResource<Mesh>("Sphere.fbx")},
-        { MeshEnum.Capsule, Resources.GetBuiltinResource<Mesh>("Capsule.fbx")}
-    };
-
     public ObjectsPresenter(Menu viewMenu)
     {
         this.viewMenu = viewMenu;
@@ -36,7 +27,9 @@ public class ObjectsPresenter
 
     public void LoadDropdowns()
     {
-        viewMenu.SetMeshOptions(new List<MeshEnum>(meshesDictionary.Keys));
+        viewMenu.SetMeshOptions(new List<MeshReference.MeshType>(MeshReference.meshTypeToMesh.Keys));
+        viewMenu.SetMaterialOptions(new List<MaterialReference.MaterialType>(MaterialReference.materialTypeToMaterial.Keys));
+        viewMenu.SetColorOptions(new List<ColorReference.ColorType>(ColorReference.colorTypeToColor.Keys));
     }
 
     public void ShowObject(int objectNumber)
@@ -48,6 +41,7 @@ public class ObjectsPresenter
         viewMenu.SetObjectMaterial(viewableObject.material);
         viewMenu.SetObjectScale(viewableObject.scale);
         viewMenu.SetObjectColor(viewableObject.baseColor);
+        viewMenu.SetObjectAlpha(viewableObject.alpha);
     }
 
     public void UpdateScale(float scale)
@@ -57,13 +51,30 @@ public class ObjectsPresenter
         viewMenu.SetObjectScale(viewableObject.scale);
     }
 
-    public void UpdateMesh(MeshEnum meshNumber)
+    public void UpdateMesh(MeshReference.MeshType meshNumber)
     {
         ViewableObject viewableObject = objectsLibrary.GetViewableObjects()[objectNumber];
-        viewableObject.mesh = meshesDictionary[meshNumber];
+        viewableObject.mesh = meshNumber;
         viewMenu.SetObjectMesh(viewableObject.mesh);
         viewMenu.SetObjectMaterial(viewableObject.material);
         viewMenu.SetObjectScale(viewableObject.scale);
+        viewMenu.SetObjectColor(viewableObject.baseColor);
+    }
+
+    public void UpdateMaterial(MaterialReference.MaterialType materialNumber)
+    {
+        ViewableObject viewableObject = objectsLibrary.GetViewableObjects()[objectNumber];
+        viewableObject.material = materialNumber;
+        viewMenu.SetObjectMaterial(viewableObject.material);
+        viewMenu.SetObjectScale(viewableObject.scale);
+        viewMenu.SetObjectColor(viewableObject.baseColor);
+        viewMenu.SetObjectAlpha(viewableObject.alpha);
+    }
+
+    public void UpdateColor(ColorReference.ColorType colorNumber)
+    {
+        ViewableObject viewableObject = objectsLibrary.GetViewableObjects()[objectNumber];
+        viewableObject.baseColor = colorNumber;
         viewMenu.SetObjectColor(viewableObject.baseColor);
     }
 

@@ -24,15 +24,6 @@ public class Menu : MonoBehaviour
     private ObjectsPresenter objectsPresenter;
     private float buttonYOffset = 0f;
 
-    private Dictionary<ObjectsPresenter.MeshEnum, string> meshNameDictionary = new Dictionary<ObjectsPresenter.MeshEnum, string>()
-    {
-        { ObjectsPresenter.MeshEnum.Cube, "Cube" },
-        { ObjectsPresenter.MeshEnum.Sphere, "Sphere" },
-        { ObjectsPresenter.MeshEnum.Capsule, "Capsule" },
-    };
-
-
-    
     void Start()
     {
         this.objectsPresenter = new ObjectsPresenter(this);
@@ -50,7 +41,17 @@ public class Menu : MonoBehaviour
 
         meshDropdown.onValueChanged.AddListener((int newMeshNumber) =>
         {
-            objectsPresenter.UpdateMesh((ObjectsPresenter.MeshEnum)newMeshNumber);
+            objectsPresenter.UpdateMesh((MeshReference.MeshType)newMeshNumber);
+        });
+
+        materialDropdown.onValueChanged.AddListener((int newMaterialNumber) =>
+        {
+            objectsPresenter.UpdateMaterial((MaterialReference.MaterialType)newMaterialNumber);
+        });
+
+        colorDropdown.onValueChanged.AddListener((int newColorNumber) =>
+        {
+            objectsPresenter.UpdateColor((ColorReference.ColorType)newColorNumber);
         });
 
         alphaSlider.onValueChanged.AddListener((float newAlpha) => 
@@ -72,44 +73,69 @@ public class Menu : MonoBehaviour
         buttonYOffset += 30f;
     }
 
-    public void SetMeshOptions(List<ObjectsPresenter.MeshEnum> optionValues)
+    public void SetMeshOptions(List<MeshReference.MeshType> optionValues)
     {
-        optionValues.ForEach((ObjectsPresenter.MeshEnum value) =>
+        optionValues.ForEach((MeshReference.MeshType value) =>
         {
-            meshDropdown.AddOptions(new List<string> { meshNameDictionary[value] });
+            meshDropdown.AddOptions(new List<string> { MeshReference.meshTypeToName[value] });
         });
-        
+    }
+
+    public void SetMaterialOptions(List<MaterialReference.MaterialType> optionValues)
+    {
+        optionValues.ForEach((MaterialReference.MaterialType value) =>
+        {
+            materialDropdown.AddOptions(new List<string> { MaterialReference.materialTypeToName[value] });
+        });
+    }
+
+    public void SetColorOptions(List<ColorReference.ColorType> optionValues)
+    {
+        optionValues.ForEach((ColorReference.ColorType value) =>
+        {
+            colorDropdown.AddOptions(new List<string> { ColorReference.colorTypeToName[value] });
+        });
     }
 
     public void SetObjectName(string objectName)
     {
         scaleInput.interactable = true;
         meshDropdown.interactable = true;
+        materialDropdown.interactable = true;
         objectNameLabel.text = objectName;
     }
 
-    public void SetObjectMesh(Mesh mesh)
+    public void SetObjectMesh(MeshReference.MeshType meshNumber)
     {
         foreach (Transform child in itemContainer.transform)
         {
-            GameObject.Destroy(child.gameObject);
+            Destroy(child.gameObject);
         }
         object3D = new GameObject();
         object3D.transform.SetParent(itemContainer.transform);
         MeshFilter meshFilter = object3D.AddComponent<MeshFilter>();
         object3D.AddComponent<MeshRenderer>();
-        meshFilter.sharedMesh = mesh;
-    }
-
-    public void SetSelectedMesh(ObjectsPresenter.MeshEnum meshNumber)
-    {
+        meshFilter.sharedMesh = MeshReference.meshTypeToMesh[meshNumber];
         meshDropdown.SetValueWithoutNotify((int)meshNumber);
     }
 
-    public void SetObjectMaterial(Material material)
+    public void SetObjectMaterial(MaterialReference.MaterialType materialNumber)
     {
+        colorDropdown.interactable = false;
+        alphaSlider.interactable = false;
+
         MeshRenderer meshRenderer = object3D.GetComponent<MeshRenderer>();
-        meshRenderer.material = material;
+        meshRenderer.material = MaterialReference.materialTypeToMaterial[materialNumber];
+        materialDropdown.SetValueWithoutNotify((int)materialNumber);
+
+        if (MaterialReference.colorableMaterials.Contains(materialNumber))
+        {
+            colorDropdown.interactable = true;
+        }
+        if (MaterialReference.alphaMaterials.Contains(materialNumber))
+        {
+            alphaSlider.interactable = true;
+        }
     }
 
     public void SetObjectScale(float scale)
@@ -118,10 +144,10 @@ public class Menu : MonoBehaviour
         scaleInput.GetComponent<TMP_InputField>().text = scale.ToString();
     }
     
-    public void SetObjectColor(Color color)
+    public void SetObjectColor(ColorReference.ColorType colorNumber)
     {
-        object3D.GetComponent<MeshRenderer>().material.color = color;
-        // colorDropdown.GetComponent<TMP_Dropdown>();
+        object3D.GetComponent<MeshRenderer>().material.color = ColorReference.colorTypeToColor[colorNumber];
+        colorDropdown.SetValueWithoutNotify((int)colorNumber);
     }
 
     public void SetObjectAlpha(float alpha)
@@ -130,5 +156,6 @@ public class Menu : MonoBehaviour
         Color newColor = meshRenderer.material.color;
         newColor.a = alpha;
         meshRenderer.material.color = newColor;
+        alphaSlider.value = alpha;
     }
 }
