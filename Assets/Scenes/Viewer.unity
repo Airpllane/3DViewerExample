@@ -5935,6 +5935,7 @@ MonoBehaviour:
     alpha: 0
   viewMenu: {fileID: 1982004438}
   objectTemplate: {fileID: 3670844217569034737, guid: dc4ef63e9d5293c4d9856d5eeb53453b, type: 3}
+  itemContainer: {fileID: 843700340}
   renderedObject: {fileID: 0}
 --- !u!1 &1998343041
 GameObject:
@@ -5965,13 +5966,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d5e1159b51f8f947b19eae05fe17abd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  objectList:
-  - objectName: Red Box1
-    Mesh: 0
-    Material: 0
-    scale: 0.7
-    BaseColor: 2
-    alpha: 1
+  objectList: []
 --- !u!4 &1998343043
 Transform:
   m_ObjectHideFlags: 0
