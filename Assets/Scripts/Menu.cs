@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -13,6 +14,12 @@ public class Menu : MonoBehaviour
     public TMP_Dropdown colorDropdown;
     public Slider alphaSlider;
 
+    public event Action<string> OnScaleChanged;
+    public event Action<MeshReference.MeshType> OnMeshChanged;
+    public event Action<MaterialReference.MaterialType> OnMaterialChanged;
+    public event Action<ColorReference.ColorType> OnColorChanged;
+    public event Action<float> OnAlphaChanged;
+
     public TextMeshProUGUI objectNameLabel;
     public GameObject itemContainer;
     [HideInInspector]
@@ -21,15 +28,33 @@ public class Menu : MonoBehaviour
     void Start()
     {
         LoadDropdowns();
+
+        scaleInput.onEndEdit.AddListener((string inputString) =>
+        {
+            OnScaleChanged.Invoke(inputString);
+        });
+
+        meshDropdown.onValueChanged.AddListener((int newMeshNumber) =>
+        {
+            OnMeshChanged.Invoke((MeshReference.MeshType)newMeshNumber);
+        });
+
+        materialDropdown.onValueChanged.AddListener((int newMaterialNumber) =>
+        {
+            OnMaterialChanged.Invoke((MaterialReference.MaterialType)newMaterialNumber);
+        });
+
+        colorDropdown.onValueChanged.AddListener((int newColorNumber) =>
+        {
+            OnColorChanged.Invoke((ColorReference.ColorType)newColorNumber);
+        });
+
+        alphaSlider.onValueChanged.AddListener((float newAlpha) =>
+        {
+            OnAlphaChanged.Invoke(newAlpha);
+        });
     }
 
-    public void SetObject(GameObject renderedObject)
-    {
-        if (displayedObject) Destroy(displayedObject);
-        displayedObject = renderedObject;
-        displayedObject.transform.SetParent(itemContainer.transform);
-        displayedObject.transform.localRotation = Quaternion.identity;
-    }
     public void SetObjectName(string objectName)
     {
         objectNameLabel.text = objectName;

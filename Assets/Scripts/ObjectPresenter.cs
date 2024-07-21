@@ -6,48 +6,30 @@ public class ObjectPresenter : MonoBehaviour
 {
     public ViewableObject model;
     public Menu viewMenu;
+    public ObjectTemplate objectTemplate;
+    public GameObject itemContainer;
 
+    public GameObject renderedObject;
     public void Awake()
     {
-        viewMenu.scaleInput.onEndEdit.AddListener((string inputString) =>
-        {
-            float newScale;
-            if (float.TryParse(inputString, out newScale))
-            {
-                if (newScale < 0.01) newScale = 0.01f;
-                if (newScale > 1.5) newScale = 1.5f;
-                UpdateScale(newScale);
-            }
-        });
+        viewMenu.OnScaleChanged += UpdateScale;
 
-        viewMenu.meshDropdown.onValueChanged.AddListener((int newMeshNumber) =>
-        {
-            UpdateMesh((MeshReference.MeshType)newMeshNumber);
-        });
+        viewMenu.OnMeshChanged += UpdateMesh;
 
-        viewMenu.materialDropdown.onValueChanged.AddListener((int newMaterialNumber) =>
-        {
-            UpdateMaterial((MaterialReference.MaterialType)newMaterialNumber);
-        });
+        viewMenu.OnMaterialChanged += UpdateMaterial;
 
-        viewMenu.colorDropdown.onValueChanged.AddListener((int newColorNumber) =>
-        {
-            UpdateColor((ColorReference.ColorType)newColorNumber);
-        });
+        viewMenu.OnColorChanged += UpdateColor;
 
-        viewMenu.alphaSlider.onValueChanged.AddListener((float newAlpha) =>
-        {
-            UpdateAlpha(newAlpha);
-        });
+        viewMenu.OnAlphaChanged += UpdateAlpha;
     }
 
     public void DetachFromMenu()
     {
-        viewMenu.scaleInput.onEndEdit.RemoveAllListeners();
-        viewMenu.meshDropdown.onValueChanged.RemoveAllListeners();
-        viewMenu.materialDropdown.onValueChanged.RemoveAllListeners();
-        viewMenu.colorDropdown.onValueChanged.RemoveAllListeners();
-        viewMenu.alphaSlider.onValueChanged.RemoveAllListeners();
+        viewMenu.OnScaleChanged -= UpdateScale;
+        viewMenu.OnMeshChanged -= UpdateMesh;
+        viewMenu.OnMaterialChanged -= UpdateMaterial;
+        viewMenu.OnColorChanged -= UpdateColor;
+        viewMenu.OnAlphaChanged -= UpdateAlpha;
     }
 
     public void InjectModel(ViewableObject model)
@@ -58,63 +40,82 @@ public class ObjectPresenter : MonoBehaviour
 
     public void ShowObject()
     {
-        GameObject renderedObject = model.RenderObject();
-        viewMenu.SetObject(renderedObject);
+        if (renderedObject) Destroy(renderedObject);
+        renderedObject = Instantiate(objectTemplate.gameObject);
 
-        viewMenu.SetObjectName(model.name);
+        ObjectTemplate renderedObjectTemplate = renderedObject.GetComponent<ObjectTemplate>();
+        renderedObjectTemplate.SetObjectMesh(model.Mesh);
+        renderedObjectTemplate.SetObjectMaterial(model.Material);
+        renderedObjectTemplate.SetObjectScale(model.scale);
+        renderedObjectTemplate.SetObjectColor(model.BaseColor);
+        renderedObjectTemplate.SetObjectAlpha(model.alpha);
+
+        
+        renderedObject.transform.SetParent(itemContainer.transform);
+        renderedObject.transform.localRotation = Quaternion.identity;
+        RelockFields(model.Material);
+
+        viewMenu.SetObjectName(model.objectName);
         viewMenu.SetScaleInput(model.scale);
         viewMenu.SetMeshDropdown(model.Mesh);
         viewMenu.SetMaterialDropdown(model.Material);
         viewMenu.SetColorDropdown(model.BaseColor);
         viewMenu.SetAlphaSlider(model.alpha);
-
-        RelockFields(model.Material);
     }
 
-    public void UpdateScale(float scale)
+    public void UpdateScale(string scaleString)
     {
-        ViewableObject viewableObject = model;
-        viewableObject.scale = scale;
-        viewMenu.SetObject(viewableObject.RenderObject());
+        float scale;
+        if (float.TryParse(scaleString, out scale))
+        {
+            if (scale < 0.01) scale = 0.01f;
+            if (scale > 1.5) scale = 1.5f;
+        }
+        model.scale = scale;
+        ObjectTemplate renderedObjectTemplate = renderedObject.GetComponent<ObjectTemplate>();
+        renderedObjectTemplate.SetObjectScale(scale);
 
-        viewMenu.SetScaleInput(viewableObject.scale);
+        viewMenu.SetScaleInput(model.scale);
     }
 
     public void UpdateMesh(MeshReference.MeshType meshNumber)
     {
-        ViewableObject viewableObject = model;
-        viewableObject.Mesh = meshNumber;
-        viewMenu.SetObject(viewableObject.RenderObject());
+        model.Mesh = meshNumber;
+        ObjectTemplate renderedObjectTemplate = renderedObject.GetComponent<ObjectTemplate>();
+        renderedObjectTemplate.SetObjectMesh(meshNumber);
 
-        viewMenu.SetMeshDropdown(viewableObject.Mesh);
+        viewMenu.SetMeshDropdown(model.Mesh);
     }
 
     public void UpdateMaterial(MaterialReference.MaterialType materialNumber)
     {
-        ViewableObject viewableObject = model;
-        viewableObject.Material = materialNumber;
-        viewMenu.SetObject(viewableObject.RenderObject());
+        model.Material = materialNumber;
+        ObjectTemplate renderedObjectTemplate = renderedObject.GetComponent<ObjectTemplate>();
+        renderedObjectTemplate.SetObjectMaterial(materialNumber);
 
-        viewMenu.SetMaterialDropdown(viewableObject.Material);
-        RelockFields(viewableObject.Material);
+        viewMenu.SetMaterialDropdown(model.Material);
+        RelockFields(model.Material);
+
+        UpdateColor(model.BaseColor);
+        UpdateAlpha(model.alpha);
     }
 
     public void UpdateColor(ColorReference.ColorType colorNumber)
     {
-        ViewableObject viewableObject = model;
-        viewableObject.BaseColor = colorNumber;
-        viewMenu.SetObject(viewableObject.RenderObject());
+        model.BaseColor = colorNumber;
+        ObjectTemplate renderedObjectTemplate = renderedObject.GetComponent<ObjectTemplate>();
+        renderedObjectTemplate.SetObjectColor(colorNumber);
 
-        viewMenu.SetColorDropdown(viewableObject.BaseColor);
+        viewMenu.SetColorDropdown(model.BaseColor);
     }
 
     public void UpdateAlpha(float alpha)
     {
-        ViewableObject viewableObject = model;
-        viewableObject.alpha = alpha;
-        viewMenu.SetObject(viewableObject.RenderObject());
+        model.alpha = alpha;
+        ObjectTemplate renderedObjectTemplate = renderedObject.GetComponent<ObjectTemplate>();
+        renderedObjectTemplate.SetObjectAlpha(alpha);
 
-        viewMenu.SetAlphaSlider(viewableObject.alpha);
+        viewMenu.SetAlphaSlider(model.alpha);
     }
 
     public void RelockFields(MaterialReference.MaterialType materialType)

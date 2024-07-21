@@ -9,7 +9,7 @@ public class ObjectButtonPresenter : MonoBehaviour
 {
     public Button button;
     public TMP_Text buttonText;
-    public ViewableObject model;
+    public ViewableObject model = null;
     public event Action<ViewableObject> ButtonClicked;
 
     public void RaiseEvent()
@@ -26,7 +26,7 @@ public class ObjectButtonPresenter : MonoBehaviour
 
     public void RemoveModel()
     {
-        if (!model) return;
+        if (model == null) return;
         model = null;
         buttonText.text = "Null";
         button.onClick.RemoveListener(RaiseEvent);
